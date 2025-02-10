@@ -29,6 +29,7 @@ jobs:
           else
             DEPLOY_URL=$(vercel deploy --staging --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
           fi
+          cat deployment.log # Debug output
           echo "DEPLOYMENT_URL=${DEPLOY_URL}" >> $GITHUB_ENV
           echo "Deployed to: $DEPLOY_URL"
     env:
