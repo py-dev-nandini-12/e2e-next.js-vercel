@@ -23,26 +23,26 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           if [[ "${{ github.event_name }}" == "release" ]]; then
-            vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+            vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
           else
-            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
           fi
 
       - name: Build Project Artifacts
         run: |
           if [[ "${{ github.event_name }}" == "release" ]]; then
-            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+            vercel build --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
           else
-            vercel build --token=${{ secrets.VERCEL_TOKEN }}
+            vercel build --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
           fi
 
       - name: Deploy to Vercel
         id: deploy
         run: |
           if [[ "${{ github.event_name }}" == "release" ]]; then
-            DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} | tail -1)
+            DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
           else
-            DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -1)
+            DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
           fi
           echo "DEPLOYMENT_URL=${DEPLOY_URL}" >> $GITHUB_ENV
           echo "Deployed to: $DEPLOY_URL"
