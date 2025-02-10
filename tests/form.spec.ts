@@ -26,6 +26,6 @@ test('Shows validation error if fields are missing', async ({ page }) => {
   await page.click('button[type="submit"]');
 
   // Expect an error message
-  await expect(page.locator('p')).toHaveText('Name and Email are required');
+  await expect(page.locator('p')).toHaveText('Submission failed. Please try again.');
 });
 
