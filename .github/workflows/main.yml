@@ -27,7 +27,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "release" ]]; then
             DEPLOY_URL=$(vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
           else
-            DEPLOY_URL=$(vercel deploy --staging --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
+            DEPLOY_URL=$(vercel deploy --pre --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
           fi
           echo "DEPLOYMENT_URL=${DEPLOY_URL}" >> $GITHUB_ENV
           echo "Deployed to: $DEPLOY_URL"
