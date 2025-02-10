@@ -1,4 +1,4 @@
-name: CI/CD Workflow--> Deploy and run E2E tests
+name: CI/CD Workflow --> Deploy and Run E2E Tests
 
 on:
   pull_request:
@@ -18,21 +18,37 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Vercel CLI
-        run: npm install -g vercel
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          fi
+
+      - name: Build Project Artifacts
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          fi
 
       - name: Deploy to Vercel
         id: deploy
         run: |
-          vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
           if [[ "${{ github.event_name }}" == "release" ]]; then
-            DEPLOY_URL=$(vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
+            DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} | tail -1)
           else
-            DEPLOY_URL=$(vercel deploy --pre --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
+            DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -1)
           fi
           echo "DEPLOYMENT_URL=${DEPLOY_URL}" >> $GITHUB_ENV
           echo "Deployed to: $DEPLOY_URL"
+
     env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
   e2e:
     name: Run E2E Tests
@@ -56,6 +72,7 @@ jobs:
         run: pnpm playwright test
         env:
           BASE_URL: ${{ env.DEPLOYMENT_URL }}
+
 
   # notify:
   #   name: Send Slack Notification
