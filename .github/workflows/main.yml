@@ -22,7 +22,7 @@ jobs:
         id: deploy
         run: |
           vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
-          DEPLOY_URL=$(vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
+          DEPLOY_URL=$(vercel deploy --staging --token ${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
           echo "DEPLOYMENT_URL=${DEPLOY_URL}" >> $GITHUB_ENV
           echo "Deployed to: $DEPLOY_URL"
 
