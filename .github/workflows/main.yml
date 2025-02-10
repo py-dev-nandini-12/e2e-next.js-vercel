@@ -74,18 +74,52 @@ jobs:
           BASE_URL: ${{ env.DEPLOYMENT_URL }}
 
 
-  # notify:
-  #   name: Send Slack Notification
-  #   runs-on: ubuntu-latest
-  #   needs: [deploy, e2e]
-  #   if: failure()
-  #   steps:
-  #     - name: Notify Slack
-  #       uses: slackapi/slack-github-action@v1.24.0
-  #       with:
-  #         payload: |
-  #           {
-  #             "text": "Workflow failed for branch: ${{ github.ref_name }}. Please check the logs for details."
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+  #notify:
+    # name: Notify Team on Failure
+    # runs-on: ubuntu-latest
+    # needs: e2e
+    # if: failure()
+    # steps:
+    #   - name: Send Slack Notification
+    #     uses: slackapi/slack-github-action@v1.24.0
+    #     with:
+    #       payload: |
+    #         {
+    #           "text": "🚨 Production deployment failed! Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+    #         }
+    #     env:
+    #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+#   rollback:
+    # name: Rollback on Failure
+    # runs-on: ubuntu-latest
+    # needs: e2e
+    # if: failure()
+    
+    # steps:
+    #   - name: Checkout Code
+    #     uses: actions/checkout@v3
+
+    #   - name: Install Vercel CLI
+    #     run: npm install --global vercel@latest
+
+    #   - name: Authenticate Vercel CLI
+    #     run: vercel login --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+
+    #   - name: Get Last Successful Production Deployment
+    #     id: get_last_deployment
+    #     run: |
+    #       echo "Fetching last successful production deployment..."
+    #       LAST_DEPLOYMENT=$(vercel list --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' | tail -1)
+    #       if [[ -z "$LAST_DEPLOYMENT" ]]; then
+    #         echo "❌ No previous successful deployment found! Rollback failed."
+    #         exit 1
+    #       fi
+    #       echo "✅ Last successful deployment found: $LAST_DEPLOYMENT"
+    #       echo "LAST_DEPLOYMENT=$LAST_DEPLOYMENT" >> $GITHUB_ENV
+
+    #   - name: Rollback to Last Working Deployment
+    #     run: |
+    #       echo "Rolling back to: $LAST_DEPLOYMENT"
+    #       vercel promote $LAST_DEPLOYMENT --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+    #       echo "✅ Rollback successful! Restored $LAST_DEPLOYMENT"
