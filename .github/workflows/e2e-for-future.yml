@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Vercel
+    name: Deploy to Vercel-->1
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +34,7 @@ jobs:
             vercel build --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
           fi
 
-      - name: Deploy to Vercel
+      - name: Deploy to Vercel-->2
         id: deploy
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
