@@ -1,125 +1,124 @@
-name: CI/CD Workflow --> Deploy and Run E2E Tests
+# name: CI/CD Workflow --> Deploy and Run E2E Tests
 
-on:
-  pull_request:
-  push:
-    branches:
-      - main
-  release:
-    types: [created]
+# on:
+#   pull_request:
+#   push:
+#     branches:
+#       - main
+#   release:
+#     types: [created]
 
-jobs:
-  deploy:
-    name: Deploy to Vercel
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     name: Deploy to Vercel
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+#       - name: Install Vercel CLI
+#         run: npm install --global vercel@latest
 
-      - name: Pull Vercel Environment Information
-        run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
-          else
-            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
-          fi
+#       - name: Pull Vercel Environment Information
+#         run: |
+#           if [[ "${{ github.event_name }}" == "release" ]]; then
+#             vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+#           else
+#             vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+#           fi
 
-      - name: Build Project Artifacts
-        run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            vercel build --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
-          else
-            vercel build --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
-          fi
+#       - name: Build Project Artifacts
+#         run: |
+#           if [[ "${{ github.event_name }}" == "release" ]]; then
+#             vercel build --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+#           else
+#             vercel build --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+#           fi
 
-      - name: Deploy to Vercel
-        id: deploy
-        run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
-          else
-            DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
-          fi
-          echo "DEPLOYMENT_URL=${DEPLOY_URL}" >> $GITHUB_ENV
-          echo "Deployed to: $DEPLOY_URL"
+#       - name: Deploy to Vercel
+#         id: deploy
+#         run: |
+#           if [[ "${{ github.event_name }}" == "release" ]]; then
+#             DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
+#           else
+#             DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | tail -1)
+#           fi
+#           echo "DEPLOYMENT_URL=${DEPLOY_URL}" >> $GITHUB_ENV
+#           echo "Deployed to: $DEPLOY_URL"
 
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+#     env:
+#       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
-  e2e:
-    name: Run E2E Tests
-    runs-on: ubuntu-latest
-    needs: deploy
+#   e2e:
+#     name: Run E2E Tests
+#     runs-on: ubuntu-latest
+#     needs: deploy
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+#       - name: Install pnpm
+#         run: npm install -g pnpm
 
-      - name: Install Dependencies
-        run: pnpm install
+#       - name: Install Dependencies
+#         run: pnpm install
 
-      - name: Install Playwright
-        run: pnpm playwright install
+#       - name: Install Playwright
+#         run: pnpm playwright install
 
-      - name: Run Playwright Tests
-        run: pnpm playwright test
-        env:
-          BASE_URL: ${{ env.DEPLOYMENT_URL }}
+#       - name: Run Playwright Tests
+#         run: pnpm playwright test
+#         env:
+#           BASE_URL: ${{ env.DEPLOYMENT_URL }}
 
-
-  #notify:
-    # name: Notify Team on Failure
-    # runs-on: ubuntu-latest
-    # needs: e2e
-    # if: failure()
-    # steps:
-    #   - name: Send Slack Notification
-    #     uses: slackapi/slack-github-action@v1.24.0
-    #     with:
-    #       payload: |
-    #         {
-    #           "text": "🚨 Production deployment failed! Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-    #         }
-    #     env:
-    #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+#notify:
+# name: Notify Team on Failure
+# runs-on: ubuntu-latest
+# needs: e2e
+# if: failure()
+# steps:
+#   - name: Send Slack Notification
+#     uses: slackapi/slack-github-action@v1.24.0
+#     with:
+#       payload: |
+#         {
+#           "text": "🚨 Production deployment failed! Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#         }
+#     env:
+#       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
 #   rollback:
-    # name: Rollback on Failure
-    # runs-on: ubuntu-latest
-    # needs: e2e
-    # if: failure()
-    
-    # steps:
-    #   - name: Checkout Code
-    #     uses: actions/checkout@v3
+# name: Rollback on Failure
+# runs-on: ubuntu-latest
+# needs: e2e
+# if: failure()
 
-    #   - name: Install Vercel CLI
-    #     run: npm install --global vercel@latest
+# steps:
+#   - name: Checkout Code
+#     uses: actions/checkout@v3
 
-    #   - name: Authenticate Vercel CLI
-    #     run: vercel login --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+#   - name: Install Vercel CLI
+#     run: npm install --global vercel@latest
 
-    #   - name: Get Last Successful Production Deployment
-    #     id: get_last_deployment
-    #     run: |
-    #       echo "Fetching last successful production deployment..."
-    #       LAST_DEPLOYMENT=$(vercel list --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' | tail -1)
-    #       if [[ -z "$LAST_DEPLOYMENT" ]]; then
-    #         echo "❌ No previous successful deployment found! Rollback failed."
-    #         exit 1
-    #       fi
-    #       echo "✅ Last successful deployment found: $LAST_DEPLOYMENT"
-    #       echo "LAST_DEPLOYMENT=$LAST_DEPLOYMENT" >> $GITHUB_ENV
+#   - name: Authenticate Vercel CLI
+#     run: vercel login --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
 
-    #   - name: Rollback to Last Working Deployment
-    #     run: |
-    #       echo "Rolling back to: $LAST_DEPLOYMENT"
-    #       vercel promote $LAST_DEPLOYMENT --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
-    #       echo "✅ Rollback successful! Restored $LAST_DEPLOYMENT"
+#   - name: Get Last Successful Production Deployment
+#     id: get_last_deployment
+#     run: |
+#       echo "Fetching last successful production deployment..."
+#       LAST_DEPLOYMENT=$(vercel list --prod --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }} | grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' | tail -1)
+#       if [[ -z "$LAST_DEPLOYMENT" ]]; then
+#         echo "❌ No previous successful deployment found! Rollback failed."
+#         exit 1
+#       fi
+#       echo "✅ Last successful deployment found: $LAST_DEPLOYMENT"
+#       echo "LAST_DEPLOYMENT=$LAST_DEPLOYMENT" >> $GITHUB_ENV
+
+#   - name: Rollback to Last Working Deployment
+#     run: |
+#       echo "Rolling back to: $LAST_DEPLOYMENT"
+#       vercel promote $LAST_DEPLOYMENT --token=${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
+#       echo "✅ Rollback successful! Restored $LAST_DEPLOYMENT"
