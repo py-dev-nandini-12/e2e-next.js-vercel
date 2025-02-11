@@ -153,7 +153,11 @@ export default function Form() {
         <button type="button" onClick={handleReset}>Reset</button>
       </form>
       <p id="error" style={{ color: 'red', visibility: error ? 'visible' : 'hidden' }}>{error}</p>
+
       <p id="message" style={{ color: 'orange', visibility: message ? 'visible' : 'hidden' }}>{message}</p>
+
+<!--       <p id="message" style={{ color: 'purple', visibility: message ? 'visible' : 'hidden' }}>{message}</p>
+ -->
     </div>
   );
 }
