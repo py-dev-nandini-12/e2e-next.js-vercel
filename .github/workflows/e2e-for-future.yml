@@ -46,7 +46,7 @@ jobs:
           echo "Deployed to: $DEPLOY_URL"
 
     env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN_MY_PROJECT }}
 
   e2e-tests:
     name: Run E2E Tests
