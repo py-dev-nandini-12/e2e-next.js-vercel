@@ -6,4 +6,8 @@ export default defineConfig({
     port: 3000,
     reuseExistingServer: true,
   },
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: 'playwright-report' }]
+  ],
 });
