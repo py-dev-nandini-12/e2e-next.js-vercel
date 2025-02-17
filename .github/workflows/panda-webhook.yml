@@ -3,49 +3,16 @@ name: Playwright Tests
 on:
   deployment_status:
 
-defaults:
-  run:
-    working-directory: ./
-
-permissions:
-  contents: read
-  issues: write # ✅ Required for issue comments
-
 jobs:
   run-e2es:
     if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
-    name: Run E2E tests
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps # ✅ Fix Playwright issue
+        run: npm ci && npx playwright install --with-deps
 
       - name: Create PandaDoc Webhook
         id: pandadoc-webhook
@@ -71,27 +38,27 @@ jobs:
           SHARED_KEY=$(echo "$RESPONSE" | jq -r '.shared_key')
           echo "PANDADOC_WEBHOOK_SHARED_KEY=$SHARED_KEY" >> $GITHUB_ENV
 
-      - name: Run E2E tests
+      - name: Run Playwright tests
         env:
-          NEXT_PUBLIC_URL: ${{ github.event.deployment_status.environment_url }}
-        run: pnpm test:e2e
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+        run: npx playwright test
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: reports
-          path: playwright/reports/
+          name: playwright-report
+          path: playwright-report/
           retention-days: 7
 
       - name: GitHub Notification
         if: failure()
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }} # ✅ Fix GitHub API auth
           script: |
-            github.rest.issues.createComment({
+            github.issues.createComment({
+              issue_number: 1,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: 1,
               body: "🚨 Playwright tests failed after deployment!"
             });
