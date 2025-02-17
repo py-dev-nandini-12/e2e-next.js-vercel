@@ -3,43 +3,60 @@ name: Playwright Tests
 on:
   deployment_status:
 
+defaults:
+  run:
+    working-directory: ./
+
+permissions:
+  contents: read # for checkout repository
+
 jobs:
   run-e2es:
-    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.ref != 'refs/heads/main' && github.event.deployment_status.environment == 'staging'
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
+    name: Run E2E tests
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm ci && npx playwright install --with-deps
+      # - name: Install Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
 
-      - name: Fetch Required Secrets from Vercel API
-        id: fetch-secrets
-        run: |
-          # Fetch Vercel Project ID
-          VERCEL_PROJECT_ID=$(curl -s -X GET "https://api.vercel.com/v9/projects" \
-          -H "Authorization: Bearer $(curl -s "https://api.vercel.com/v9/projects/drpcrd-staging/env" | jq -r '.envs[] | select(.key=="VERCEL_API_KEY") | .value')" \
-          | jq -r '.projects[] | select(.name=="drpcrd-staging") | .id')
+      # - name: Install pnpm
+      #   uses: pnpm/action-setup@v4
+      #   with:
+      #     version: latest
+      #     run_install: false
 
-          # Fetch Vercel API Key
-          VERCEL_API_KEY=$(curl -s "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env" \
-          | jq -r '.envs[] | select(.key=="VERCEL_API_KEY") | .value')
+      # - name: Get pnpm store directory
+      #   shell: bash
+      #   run: |
+      #     echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-          # Fetch PandaDoc API Key
-          PANDADOC_API_KEY=$(curl -s "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env" \
-          | jq -r '.envs[] | select(.key=="PANDADOC_API_KEY") | .value')
+      # - name: Setup pnpm cache
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ${{ env.STORE_PATH }}
+      #     key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pnpm-store-
 
-          # Export to GitHub Actions env
-          echo "VERCEL_PROJECT_ID=$VERCEL_PROJECT_ID" >> $GITHUB_ENV
-          echo "VERCEL_API_KEY=$VERCEL_API_KEY" >> $GITHUB_ENV
-          echo "PANDADOC_API_KEY=$PANDADOC_API_KEY" >> $GITHUB_ENV
+      # - name: Install packages
+      #   run: pnpm install --frozen-lockfile
 
-      - name: Create PandaDoc Webhook (drpcrd-staging)
+      - name: Install Playwright dependencies
+        run: pnpm exec playwright install-deps
+
+      - name: Install Playwright
+        run: pnpm exec playwright install
+
+      - name: Create PandaDoc Webhook
         id: pandadoc-webhook
         run: |
           RESPONSE=$(curl -X POST "https://api.pandadoc.com/public/v1/webhooks" \
-          -H "Authorization: Bearer $PANDADOC_API_KEY" \
+          -H "Authorization: Bearer ${{ env.PANDADOC_API_KEY }}" \
           -H "Content-Type: application/json" \
           -d '{
             "name": "drpcrd-staging",
@@ -59,40 +76,16 @@ jobs:
           SHARED_KEY=$(echo "$RESPONSE" | jq -r '.shared_key')
           echo "PANDADOC_WEBHOOK_SHARED_KEY=$SHARED_KEY" >> $GITHUB_ENV
 
-      - name: Store PandaDoc Webhook Key in Vercel
-        run: |
-          curl -X PATCH "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/PANDADOC_WEBHOOK_SHARED_KEY" \
-          -H "Authorization: Bearer $VERCEL_API_KEY" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "value": "'${{ env.PANDADOC_WEBHOOK_SHARED_KEY }}'",
-            "target": ["preview", "production"]
-          }'
-
-      - name: Restart Vercel Deployment to Load Env Variables
-        run: |
-          curl -X POST "https://api.vercel.com/v13/deployments" \
-          -H "Authorization: Bearer $VERCEL_API_KEY" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "name": "drpcrd-staging",
-            "target": "staging"
-          }'
-
-      - name: Wait for Deployment to Complete
-        run: sleep 30 # Allow time for the environment variables to take effect
-
-      - name: Run Playwright Tests
+      - name: Run E2E tests
         env:
-          BASE_URL: ${{ github.event.deployment_status.environment_url }}
-        run: npx playwright test
+          NEXT_PUBLIC_URL: ${{ github.event.deployment_status.environment_url }}
+        run: pnpm test:e2e
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: reports
+          path: playwright/reports/
           retention-days: 7
 
       - name: GitHub Notification
