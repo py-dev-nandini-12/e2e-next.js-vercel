@@ -8,7 +8,8 @@ defaults:
     working-directory: ./
 
 permissions:
-  contents: read # for checkout repository
+  contents: read
+  issues: write # ✅ Required for issue comments
 
 jobs:
   run-e2es:
@@ -43,11 +44,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install Playwright dependencies
-        run: pnpm exec playwright install-deps
-
-      - name: Install Playwright
-        run: pnpm exec playwright install
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps # ✅ Fix Playwright issue
 
       - name: Create PandaDoc Webhook
         id: pandadoc-webhook
@@ -89,10 +87,11 @@ jobs:
         if: failure()
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }} # ✅ Fix GitHub API auth
           script: |
             github.rest.issues.createComment({
-              issue_number: 1,
               owner: context.repo.owner,
               repo: context.repo.repo,
+              issue_number: 1,
               body: "🚨 Playwright tests failed after deployment!"
             });
