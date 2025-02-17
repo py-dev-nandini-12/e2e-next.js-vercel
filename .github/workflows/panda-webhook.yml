@@ -1,0 +1,73 @@
+name: Playwright Tests
+
+on:
+  deployment_status:
+
+defaults:
+  run:
+    working-directory: ./
+
+permissions:
+  contents: read # for checkout repository
+
+jobs:
+  run-e2es:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Run E2E tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Install packages
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright dependencies
+        run: pnpm exec playwright install-deps
+
+      - name: Install Playwright
+        run: pnpm exec playwright install
+
+      - name: Configure PandaDoc Webhook
+        run: |
+          curl -X POST https://api.pandadoc.com/public/v1/webhooks \
+          -H "Authorization: Bearer ${{ secrets.PANDADOC_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+                "url": "${{ github.event.deployment_status.environment_url }}/api/webhook/pandadoc",
+                "events": ["document.completed"],
+                "shared_key": "${{ secrets.PANDADOC_WEBHOOK_SHARED_KEY }}"
+              }'
+
+      - name: Set Vercel Environment Variable
+        run: |
+          curl -X PATCH https://api.vercel.com/v9/projects/${{ secrets.VERCEL_PROJECT_ID }}/env \
+          -H "Authorization: Bearer ${{ secrets.VERCEL_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+                "key": "PANDADOC_WEBHOOK_SHARED_KEY",
+                "value": "${{ secrets.PANDADOC_WEBHOOK_SHARED_KEY }}",
+                "target": ["staging"]
+              }'
+
+      - name: Run E2E tests
+        env:
+          NEXT_PUBLIC_URL: ${{ github.event.deployment_status.environment_url }}
+        run: pnpm test:e2e
+
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: playwright/reports/
