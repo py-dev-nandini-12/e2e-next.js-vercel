@@ -1,68 +1,3 @@
-# name: Playwright Tests
-
-# on:
-#   deployment_status:
-
-# jobs:
-#   run-e2es:
-#     if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.ref != 'refs/heads/main'
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
-
-#       - name: Install dependencies
-#         run: npm ci && npx playwright install --with-deps
-
-#       - name: Create PandaDoc Webhook
-#         id: pandadoc-webhook
-#         run: |
-#           RESPONSE=$(curl -X POST "https://api.pandadoc.com/public/v1/webhooks" \
-#           -H "Authorization: Bearer ${{ env.PANDADOC_API_KEY }}" \
-#           -H "Content-Type: application/json" \
-#           -d '{
-#             "name": "drpcrd-staging",
-#             "url": "${{ github.event.deployment_status.environment_url }}/api/webhook/pandadoc",
-#             "event_types": [
-#               "document.creation_failed",
-#               "document.deleted",
-#               "document.section_added",
-#               "document.state_changed",
-#               "document.updated",
-#               "document.completed",
-#               "pdf.completed",
-#               "recipient.completed_document"
-#             ]
-#           }')
-
-#           SHARED_KEY=$(echo "$RESPONSE" | jq -r '.shared_key')
-#           echo "PANDADOC_WEBHOOK_SHARED_KEY=$SHARED_KEY" >> $GITHUB_ENV
-
-#       - name: Run Playwright tests
-#         env:
-#           BASE_URL: ${{ github.event.deployment_status.environment_url }}
-#         run: npx playwright test
-
-#       - name: Upload Playwright Report
-#         uses: actions/upload-artifact@v4
-#         if: always()
-#         with:
-#           name: playwright-report
-#           path: playwright-report/
-#           retention-days: 7
-
-#       - name: GitHub Notification
-#         if: failure()
-#         uses: actions/github-script@v6
-#         with:
-#           script: |
-#             github.issues.createComment({
-#               issue_number: 1,
-#               owner: context.repo.owner,
-#               repo: context.repo.repo,
-#               body: "🚨 Playwright tests failed after deployment!"
-#             });
-
 name: Playwright Tests
 
 on:
@@ -74,62 +9,17 @@ permissions:
 
 jobs:
   run-e2es:
-    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'staging'
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     steps:
+      - name: Print environment
+        run: echo ${{ github.event.deployment_status.environment }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install dependencies
         run: npm ci && npx playwright install --with-deps
-
-      - name: Create PandaDoc Webhook
-        id: pandadoc-webhook
-        run: |
-          # Check if PANDADOC_API_KEY is set
-          if [[ -z "${{ env.PANDADOC_API_KEY }}" ]]; then
-            echo "❌ PandaDoc API Key is missing!"
-            exit 1
-          fi
-
-          # Make the API request
-          RESPONSE=$(curl -s -X POST "https://api.pandadoc.com/public/v1/webhooks" \
-          -H "Authorization: Bearer ${{ env.PANDADOC_API_KEY }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "name": "drpcrd-staging",
-            "url": "'"${{ github.event.deployment_status.environment_url }}"'/api/webhook/pandadoc",
-            "event_types": [
-              "document.creation_failed",
-              "document.deleted",
-              "document.section_added",
-              "document.state_changed",
-              "document.updated",
-              "document.completed",
-              "pdf.completed",
-              "recipient.completed_document"
-            ]
-          }')
-
-          # Validate the response before using jq
-          if [[ -z "$RESPONSE" || "$RESPONSE" == "null" ]]; then
-            echo "❌ Error: No response received from PandaDoc API"
-            exit 1
-          fi
-
-          echo "📩 API Response: $RESPONSE"
-
-          # Extract shared_key from response using jq
-          SHARED_KEY=$(echo "$RESPONSE" | jq -r '.shared_key')
-
-          # Check if shared_key is valid
-          if [[ "$SHARED_KEY" == "null" || -z "$SHARED_KEY" ]]; then
-            echo "❌ Failed to create PandaDoc webhook. API response: $RESPONSE"
-            exit 1
-          fi
-
-          echo "✅ PandaDoc Webhook Created Successfully!"
-          echo "PANDADOC_WEBHOOK_SHARED_KEY=$SHARED_KEY" >> $GITHUB_ENV
 
       - name: Run Playwright tests
         env:
