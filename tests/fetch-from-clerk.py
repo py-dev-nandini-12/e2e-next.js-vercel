@@ -31,13 +31,13 @@ def delete_playwright_organizations():
         organizations = fetch_organizations("playwrightTest")
 
         if len(organizations) == 0:
-            print("No organizations found with the query playwritesttest1234")
+            print("No organizations found with the query playwrightTest")
             return
 
         for organization in organizations:
             delete_organization(organization['id'])
 
-        print(f"Deleted {len(organizations)} organizations with the query 'playwright'")
+        print(f"Deleted {len(organizations)} organizations with the query 'playwrightTest'")
     except Exception as error:
         print(f"Error deleting organizations: {error}")
 
