@@ -32,6 +32,7 @@ jobs:
           npx playwright test || echo "Tests failed" > test-failure.log
 
       - name: Upload Playwright Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: reports
