@@ -27,14 +27,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8.6.0
-          run_install: false
-
       - name: Install Playwright
-        run: pnpm exec playwright install --with-deps
+        run: npx exec playwright install --with-deps
 
       - name: Run E2E tests
         env:
