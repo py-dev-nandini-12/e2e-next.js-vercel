@@ -1,0 +1,40 @@
+name: Playwright Tests
+
+on:
+  deployment_status:
+
+jobs:
+  run-e2es:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci && npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+        run: npx playwright test
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: GitHub Notification
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: 1,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "🚨 Playwright tests failed after deployment!"
+            });
