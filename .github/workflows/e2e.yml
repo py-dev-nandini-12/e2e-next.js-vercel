@@ -27,14 +27,9 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      - name: GitHub Notification
+      - name: Slack Notification on Failure
         if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.issues.createComment({
-              issue_number: 1,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: "🚨 Playwright tests failed after deployment!"
-            });
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"🚨 Playwright tests failed after deployment to '${{ github.event.deployment_status.environment }}'. Check the reports for details."}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}

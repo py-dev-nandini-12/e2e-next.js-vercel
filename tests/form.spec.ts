@@ -77,7 +77,7 @@ test.describe("Form Submission Tests", () => {
     await page.click('button[type="submit"]');
 
     // Expect email validation error
-    await expect(page.locator("#error")).toHaveText("Invalid email format");
+    await expect(page.locator("#error")).toHaveText("Invalid email formats");
   });
 
   test("🔄 Reset button clears the form", async ({ page }) => {
