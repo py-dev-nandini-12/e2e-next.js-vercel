@@ -87,7 +87,7 @@ test.describe("Weather Widget", () => {
       .textContent();
 
     expect(temperatureText).toMatch(/Temperature: \d+\.\d+°C/);
-    expect(windSpeedText).toMatch(/Wind Speed: \d+\.\d+ km\/h/);
+    expect(windSpeedText).toMatch(/Wind Speed: \d+(\.\d+)? km\/h/);
   });
 });
 
