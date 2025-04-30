@@ -74,14 +74,20 @@ test.describe("Weather Widget", () => {
     await page.goto("/form");
 
     // Wait for the weather widget to load
-    await page.waitForSelector("text=Current Weather", { timeout: 5000 });
+    await page.waitForSelector("text=Current Weather", { timeout: 3000 });
 
     // Check if temperature and wind speed are displayed
-    const temperature = await page.locator("text=Temperature:").isVisible();
-    const windSpeed = await page.locator("text=Wind Speed:").isVisible();
+    const temperatureText = await page
+      .locator("text=Temperature:")
+      .last()
+      .textContent();
+    const windSpeedText = await page
+      .locator("text=Wind Speed:")
+      .last()
+      .textContent();
 
-    expect(temperature).toBeTruthy();
-    expect(windSpeed).toBeTruthy();
+    expect(temperatureText).toMatch(/Temperature: \d+\.\d+°C/);
+    expect(windSpeedText).toMatch(/Wind Speed: \d+\.\d+ km\/h/);
   });
 });
 
