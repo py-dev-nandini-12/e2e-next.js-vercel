@@ -1,34 +1,3 @@
-// import { test, expect } from '@playwright/test';
-
-// test('Form submission works correctly', async ({ page }) => {
-//   await page.goto('/form');
-
-//   // Ensure form elements are present
-//   await expect(page.locator('input[placeholder="Enter your name"]')).toBeVisible();
-//   await expect(page.locator('input[placeholder="Enter your email"]')).toBeVisible();
-//   await expect(page.locator('button[type="submit"]')).toHaveText('Submit');
-
-//   // Fill out the form
-//   await page.fill('input[placeholder="Enter your name"]', 'John Doe');
-//   await page.fill('input[placeholder="Enter your email"]', 'john@example.com');
-
-//   // Submit the form
-//   await page.click('button[type="submit"]');
-
-//   // Wait for success message
-//   await expect(page.locator('p')).toHaveText('Thank you, John Doe!');
-// });
-
-// test('Shows validation error if fields are missing', async ({ page }) => {
-//   await page.goto('/form');
-
-//   // Try to submit without filling anything
-//   await page.click('button[type="submit"]');
-
-//   // Expect an error message
-//   await expect(page.locator('p')).toHaveText('Submission failed. Please try again.');
-// });
-
 import { test, expect } from "@playwright/test";
 
 test.describe("Form Submission Tests", () => {
@@ -93,5 +62,40 @@ test.describe("Form Submission Tests", () => {
     // Expect fields to be cleared
     await expect(page.locator('input[name="name"]')).toHaveValue("");
     await expect(page.locator('input[name="email"]')).toHaveValue("");
+  });
+});
+
+test.describe("Weather Widget", () => {
+  test("should display current weather", async ({ page }) => {
+    await page.goto("/form");
+
+    // Wait for the weather widget to load
+    await page.waitForSelector("text=Current Weather");
+
+    // Check if temperature and wind speed are displayed
+    const temperature = await page.locator("text=Temperature:").isVisible();
+    const windSpeed = await page.locator("text=Wind Speed:").isVisible();
+
+    expect(temperature).toBeTruthy();
+    expect(windSpeed).toBeTruthy();
+  });
+});
+
+test.describe("Task List", () => {
+  test("should allow adding and deleting tasks", async ({ page }) => {
+    await page.goto("/");
+
+    // Add a new task
+    await page.fill('input[placeholder="Add a new task"]', "Test Task");
+    await page.click("text=Add Task");
+
+    // Verify the task is added
+    await expect(page.locator("text=Test Task")).toBeVisible();
+
+    // Delete the task
+    await page.click("text=Delete");
+
+    // Verify the task is removed
+    await expect(page.locator("text=Test Task")).not.toBeVisible();
   });
 });
