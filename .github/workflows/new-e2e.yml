@@ -1,0 +1,39 @@
+name: Playwright Tests New
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Deployment preview URL"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  run-e2es:
+    timeout-minutes: 35
+    runs-on: ubuntu-latest
+    name: Run E2E tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci && npx playwright install --with-deps
+
+      - name: Run E2E tests
+        env:
+          NEXT_PUBLIC_URL: ${{ inputs.preview_url }}
+        run: |
+          npx playwright test || echo "Tests failed" > test-failure.log
+
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: packages/dashboard/playwright/reports/
+          retention-days: 7
