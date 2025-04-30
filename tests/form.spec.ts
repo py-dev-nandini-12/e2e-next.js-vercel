@@ -66,11 +66,15 @@ test.describe("Form Submission Tests", () => {
 });
 
 test.describe("Weather Widget", () => {
-  test("should display current weather", async ({ page }) => {
+  test("should display current weather", async ({ page, context }) => {
+    // Mock geolocation to return a fixed location
+    await context.grantPermissions(["geolocation"]);
+    await context.setGeolocation({ latitude: 40.7128, longitude: -74.006 });
+
     await page.goto("/form");
 
     // Wait for the weather widget to load
-    await page.waitForSelector("text=Current Weather");
+    await page.waitForSelector("text=Current Weather", { timeout: 5000 });
 
     // Check if temperature and wind speed are displayed
     const temperature = await page.locator("text=Temperature:").isVisible();
