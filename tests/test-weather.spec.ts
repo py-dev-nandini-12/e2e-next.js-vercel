@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 test.describe("Weather Widgets.", () => {
-  test("should display current weather condition", async ({
+  test("should display current weather conditions", async ({
     page,
     context,
   }) => {
