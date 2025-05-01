@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test.describe("Weather Widget", () => {
+test.describe("Weather Widgets", () => {
   test("should display current weather", async ({ page, context }) => {
     // Mock geolocation to return a fixed location
     await context.grantPermissions(["geolocation"]);
