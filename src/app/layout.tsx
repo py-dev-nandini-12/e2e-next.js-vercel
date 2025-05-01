@@ -6,6 +6,8 @@ import Header from "./header"; // Import the Header component
 import Footer from "./footer"; // Import the Footer component
 import { useState } from "react";
 
+const showWeatherWidget = process.env.NEXT_PUBLIC_SHOW_WEATHER_WIDGET;
+
 export default function RootLayout({
   children,
 }: {
@@ -29,7 +31,7 @@ export default function RootLayout({
         <Header toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
         <main>
           {children}
-          <WeatherWidget />
+          {showWeatherWidget && <WeatherWidget />}
           <TaskList />
         </main>
         <Footer />
