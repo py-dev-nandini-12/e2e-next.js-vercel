@@ -2,11 +2,9 @@
 
 import WeatherWidget from "./weather-widget";
 import TaskList from "./task-list";
-import Header from "./header"; // Import the Header component
-import Footer from "./footer"; // Import the Footer component
+import Header from "./header";
+import Footer from "./footer";
 import { useState } from "react";
-
-const showWeatherWidget = process.env.NEXT_PUBLIC_SHOW_WEATHER_WIDGET;
 
 export default function RootLayout({
   children,
@@ -14,6 +12,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [darkMode, setDarkMode] = useState(false);
+
+  // Access the Vercel flag
+  const showWeatherWidget =
+    process.env.NEXT_PUBLIC_SHOW_WEATHER_WIDGET === "true";
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
