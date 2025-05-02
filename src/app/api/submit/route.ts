@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { weatherWidgetFlag } from "../../flags";
 
 export async function POST(req: Request) {
   const isFeatureXEnabled =
     process.env.NEXT_PUBLIC_FEATURE_X_ENABLED === "true";
+  const isWeatherWidgetEnabled = await weatherWidgetFlag();
 
   try {
     const { name, email } = await req.json();
@@ -17,6 +19,13 @@ export async function POST(req: Request) {
     if (!isFeatureXEnabled) {
       return NextResponse.json(
         { message: "Feature X is disabled" },
+        { status: 403 }
+      );
+    }
+
+    if (!isWeatherWidgetEnabled) {
+      return NextResponse.json(
+        { message: "Weather Widget feature is disabled" },
         { status: 403 }
       );
     }
