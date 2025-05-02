@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import WeatherWidget from "./weather-widget";
 
 export default function Home() {
   const [isFeatureXEnabled, setIsFeatureXEnabled] = useState(false);
@@ -10,11 +11,7 @@ export default function Home() {
   return (
     <div className="container">
       <h1>Welcome to Next.js + Playwright</h1>
-      {isFeatureXEnabled ? (
-        <p>🎉 Feature X is ON</p>
-      ) : (
-        <p>🚫 Feature X is OFF</p>
-      )}
+      {isFeatureXEnabled ? <WeatherWidget /> : <p>🚫 Feature X is OFF</p>}
     </div>
   );
 }
