@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
-export const isFeatureXEnabled =
-  process.env.NEXT_PUBLIC_FEATURE_X_ENABLED === "true";
-
 export async function POST(req: Request) {
+  const isFeatureXEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_X_ENABLED === "true";
+
   try {
     const { name, email } = await req.json();
 
@@ -11,6 +11,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { message: "Name and Email are required" },
         { status: 400 }
+      );
+    }
+
+    if (!isFeatureXEnabled) {
+      return NextResponse.json(
+        { message: "Feature X is disabled" },
+        { status: 403 }
       );
     }
 
