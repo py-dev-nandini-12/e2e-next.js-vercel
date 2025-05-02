@@ -1,7 +1,6 @@
-import { getFlag } from "../flags";
-
 export default async function WeatherWidget() {
-  const isEnabled = await getFlag("WeatherWidgetEnabled");
+  const res = await fetch("/api/flags");
+  const { isEnabled } = await res.json();
 
   if (!isEnabled) {
     return null; // Do not render the widget if the flag is disabled
