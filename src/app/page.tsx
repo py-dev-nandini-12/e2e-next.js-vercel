@@ -1,8 +1,9 @@
 import Link from "next/link";
 import WeatherWidget from "./weather-widget";
+import { getFeature } from "@vercel/flags";
 
 export default async function Home() {
-  const isWeatherFeatureEnabled = process.env.WEATHER_WIDGET_ENABLED === "true";
+  const isWeatherFeatureEnabled = getFeature("FEATURE_WEATHER_WIDGET");
 
   return (
     <div className="container">
