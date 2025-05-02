@@ -1,15 +1,20 @@
-import Link from "next/link";
-import WeatherWidget from "./weather-widget";
-import { getFeature } from "@vercel/flags";
+import { useEffect, useState } from "react";
 
-export default async function Home() {
-  const isWeatherFeatureEnabled = getFeature("FEATURE_WEATHER_WIDGET");
+export default function Home() {
+  const [isFeatureXEnabled, setIsFeatureXEnabled] = useState(false);
+
+  useEffect(() => {
+    setIsFeatureXEnabled(process.env.NEXT_PUBLIC_FEATURE_X_ENABLED === "true");
+  }, []);
 
   return (
     <div className="container">
       <h1>Welcome to Next.js + Playwright</h1>
-      <Link href="/form">Go to Form</Link>
-      {isWeatherFeatureEnabled && <WeatherWidget />}
+      {isFeatureXEnabled ? (
+        <p>🎉 Feature X is ON</p>
+      ) : (
+        <p>🚫 Feature X is OFF</p>
+      )}
     </div>
   );
 }
