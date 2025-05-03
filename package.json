@@ -11,8 +11,9 @@
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@types/node-fetch": "^2.6.12",
+    "async_hooks": "^1.0.0",
     "flags": "^4.0.0",
-    "next": "15.1.6",
+    "next": "15.3.1",
     "node-fetch": "^3.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
