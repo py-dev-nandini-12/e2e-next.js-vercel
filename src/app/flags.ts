@@ -1,3 +1,5 @@
+"use server";
+
 import { flag } from "flags/next";
 
 export const weatherWidgetFlag = flag({
