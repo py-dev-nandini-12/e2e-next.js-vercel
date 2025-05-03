@@ -1,10 +1,13 @@
-import Link from 'next/link';
+import { weatherWidgetFlag } from "./flags";
+import WeatherClient from "./components/WeatherClient";
 
-export default function Home() {
+export default async function Page() {
+  const isWeatherWidgetEnabled = await weatherWidgetFlag();
+
   return (
-    <div className="container">
+    <div>
       <h1>Welcome to Next.js + Playwright</h1>
-      <Link href="/form">Go to Form</Link>
+      <WeatherClient isEnabled={isWeatherWidgetEnabled} />
     </div>
   );
 }
