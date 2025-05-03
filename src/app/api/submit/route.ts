@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     if (!name || !email) {
       return NextResponse.json(
-        { message: "Name and Email are required" },
+        { message: "Name and Email are required." },
         { status: 400 }
       );
     }
