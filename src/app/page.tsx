@@ -1,8 +1,7 @@
 import { weatherWidgetFlag } from "./flags";
-import WeatherClient from "./components/WeatherClient";
 
 export default async function Page() {
-  const isWeatherWidgetEnabled = await weatherWidgetFlag();
+  const weather = await weatherWidgetFlag();
 
-  return <div>{isWeatherWidgetEnabled ? "Flag is on" : "Flag is off"}</div>;
+  return <div>{weather ? "Flag is on" : "Flag is off"}</div>;
 }
