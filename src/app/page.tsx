@@ -1,19 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import WeatherWidget from "./weather-widget";
+import { weatherWidgetFlag } from "./flags";
 
-export default function Home() {
-  const [isFeatureXEnabled, setIsFeatureXEnabled] = useState(false);
+export default function Page() {
+  const [isWeatherWidgetEnabled, setIsWeatherWidgetEnabled] = useState(false);
 
   useEffect(() => {
-    setIsFeatureXEnabled(process.env.NEXT_PUBLIC_FEATURE_X_ENABLED === "true");
+    async function fetchFlag() {
+      const flag = await weatherWidgetFlag();
+      setIsWeatherWidgetEnabled(flag);
+    }
+    fetchFlag();
   }, []);
 
   return (
-    <div className="container">
+    <div>
       <h1>Welcome to Next.js + Playwright</h1>
-      {isFeatureXEnabled ? <WeatherWidget /> : <p>🚫 Feature X is OFF</p>}
+      {isWeatherWidgetEnabled ? (
+        <p>🎉 Weather Widget is ON</p>
+      ) : (
+        <p>🚫 Weather Widget is OFF</p>
+      )}
     </div>
   );
 }
