@@ -1,4 +1,4 @@
-import { weatherWidgetFlag } from "./flags";
+import { weatherWidgetFlag } from "../../flags";
 import WeatherClient from "./components/WeatherClient";
 
 export default async function Home() {
