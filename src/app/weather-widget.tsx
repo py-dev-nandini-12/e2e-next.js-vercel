@@ -1,4 +1,15 @@
+"use client";
+
 import { useState, useEffect } from "react";
+
+const isFeatureEnabled = process.env.NEXT_PUBLIC_FEATURE_X_ENABLED === "true";
+if (!isFeatureEnabled) {
+  console.warn(
+    "WeatherWidget: Feature flag is disabled. The widget will not render."
+  );
+
+  // Do not render the widget if the feature flag is disabled
+}
 
 export default function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -12,6 +23,10 @@ export default function WeatherWidget() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!isFeatureEnabled) {
+      return; // Do not proceed if the feature flag is disabled
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
