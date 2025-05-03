@@ -5,6 +5,7 @@ import { flag } from "flags/next";
 export const weatherWidgetFlag = flag({
   key: "weather-widget",
   decide() {
-    return false; // Example logic for deciding the flag
+    // Enable the weather widget for 50% of visitors
+    return Math.random() > 0.5;
   },
 });
