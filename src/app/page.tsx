@@ -1,4 +1,4 @@
-import { weatherWidgetFlag } from "./flags";
+import { weatherWidgetFlag } from "../../flags";
 import WeatherWidget from "./weather-widget";
 
 export default async function Home() {
