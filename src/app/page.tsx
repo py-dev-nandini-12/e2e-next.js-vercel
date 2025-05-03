@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { FlagValues } from "flags/react";
-import { weatherWidgetFlag } from "./flags";
+import { weatherWidgetFlag } from "../../flags";
 
 export default async function Home() {
   const weatherWidgetValue = await weatherWidgetFlag();
