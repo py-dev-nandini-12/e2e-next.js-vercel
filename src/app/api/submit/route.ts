@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { weatherWidgetFlag } from "../../flags";
+import { getProviderData, createFlagsDiscoveryEndpoint } from "flags/next";
+import * as flags from "../../flags";
+
+export const GET = createFlagsDiscoveryEndpoint(() => getProviderData(flags));
 
 export async function POST(req: Request) {
   const isFeatureXEnabled =

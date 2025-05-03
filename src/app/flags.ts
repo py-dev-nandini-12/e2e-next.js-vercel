@@ -1,6 +1,9 @@
-import { flag } from "@vercel/flags/next";
+import { flag } from "flags/next";
 
 export const weatherWidgetFlag = flag<boolean>({
   key: "Weather Widget",
-  decide: () => false, // Default to false
+  description: "A Weather Widget feature flag",
+  decide() {
+    return false;
+  }, // Default to false
 });
