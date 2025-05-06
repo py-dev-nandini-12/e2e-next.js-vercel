@@ -1,0 +1,25 @@
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  try {
+    const { name, email } = await req.json();
+
+    if (!name || !email) {
+      return NextResponse.json(
+        { message: "Name and Email are required" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({
+      message: `Hello ${name}, your form has been submitted successfully!`,
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { message: "Internal server error", error: errorMessage },
+      { status: 500 }
+    );
+  }
+}
