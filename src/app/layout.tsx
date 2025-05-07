@@ -5,6 +5,7 @@ import TaskList from "./task-list";
 import Header from "./header"; // Import the Header component
 import Footer from "./footer"; // Import the Footer component
 import { useState } from "react";
+import { VercelToolbar } from "@vercel/toolbar/next";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
           <TaskList />
         </main>
         <Footer />
+        <VercelToolbar />
       </body>
     </html>
   );
