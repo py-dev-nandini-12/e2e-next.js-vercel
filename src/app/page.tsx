@@ -1,8 +1,10 @@
 import { weatherWidgetFlag } from "../../flags";
 import WeatherWidget from "./weather-widget";
+// import { animationFeatureFlag } from "../../flags";
 
 export default async function Home() {
   const isWeatherWidgetEnabled = await weatherWidgetFlag();
+  // const isAnimationFeatureEnabled = await animationFeatureFlag();
 
   return (
     <div>

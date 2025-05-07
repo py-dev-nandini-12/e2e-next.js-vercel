@@ -1,5 +1,4 @@
 "use client";
-
 import WeatherWidget from "./weather-widget";
 import TaskList from "./task-list";
 import Header from "./header"; // Import the Header component
