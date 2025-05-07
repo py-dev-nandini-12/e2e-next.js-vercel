@@ -12,6 +12,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const shouldInjectToolbar = process.env.NODE_ENV === "development";
   const [darkMode, setDarkMode] = useState(false);
 
   const toggleDarkMode = () => {
@@ -30,11 +31,12 @@ export default function RootLayout({
         <Header toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
         <main>
           {children}
+          {shouldInjectToolbar && <VercelToolbar />}
+
           <WeatherWidget />
           <TaskList />
         </main>
         <Footer />
-        <VercelToolbar />
       </body>
     </html>
   );
