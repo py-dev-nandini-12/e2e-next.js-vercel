@@ -13,7 +13,7 @@ export default async function AnimationPage() {
           <AnimatedBox />
         </div>
       ) : (
-        <p>🚫 Animation Feature is OFF</p>
+        <p>🚫 Animation Feature is OFF.</p>
       )}
     </div>
   );
