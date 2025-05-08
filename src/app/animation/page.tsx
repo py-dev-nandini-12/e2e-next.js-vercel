@@ -1,4 +1,4 @@
-import { animationFeatureFlag } from "./flags";
+import { animationFeatureFlag } from "../flags";
 import AnimatedBox from "../components/AnimatedBox";
 
 export default async function AnimationPage() {
