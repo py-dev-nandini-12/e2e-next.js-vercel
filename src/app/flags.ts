@@ -1,7 +1,7 @@
 import { flag } from "flags/next";
 
-export const weatherWidgetFlag = flag<boolean>({
+export const weatherWidgetFlag = flag({
   key: "weather-widget",
   description: "Enable the weather widget for users.",
-  decide: () => process.env.NEXT_PUBLIC_FEATURE_X_ENABLED === "true",
+  decide: () => process.env.NEW_WEATHER_FLAG === "true",
 });
