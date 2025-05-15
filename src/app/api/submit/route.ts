@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-// import { neon } from "@neondatabase/serverless";
+
 
 export async function POST(req: Request) {
   try {
@@ -12,13 +12,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // No database insertion here, just respond
+
+    return NextResponse.json({
+      message: `Hello ${name}, your form has been submitted successfully!`,
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { message: "Internal server error", error: errorMessage },
+
     return NextResponse.json({
       message: `Hello ${name}, your form has been submitted successfully!`,
     });
   } catch {
     return NextResponse.json(
       { message: "Internal server error" },
+
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function Header({
+export default async function Header({
   toggleDarkMode,
   darkMode,
 }: {
@@ -13,22 +13,25 @@ export default function Header({
         padding: "10px",
         borderBottom: "1px solid #ccc",
         display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
       }}
     >
       <nav>
         <Link href="/" style={{ marginRight: "15px" }}>
           Home
         </Link>
-        <a href="/form" style={{ marginRight: "15px" }}>
+        <Link href="/form" style={{ marginRight: "15px" }}>
           Form
-        </a>
-        <a href="/about">About</a>
+        </Link>
+        <Link href="/animation" style={{ marginRight: "15px" }}>
+          Animation
+        </Link>
+        <Link href="/about" style={{ marginRight: "15px" }}>
+          About
+        </Link>
+        <button onClick={toggleDarkMode}>
+          Toggle {darkMode ? "Light" : "Dark"} Mode
+        </button>
       </nav>
-      <button onClick={toggleDarkMode}>
-        Toggle {darkMode ? "Light" : "Dark"} Mode
-      </button>
     </header>
   );
 }
