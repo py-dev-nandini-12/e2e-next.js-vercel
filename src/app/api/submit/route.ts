@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+
 export async function POST(req: Request) {
   try {
     const { name, email } = await req.json();
@@ -11,6 +12,7 @@ export async function POST(req: Request) {
       );
     }
 
+
     return NextResponse.json({
       message: `Hello ${name}, your form has been submitted successfully!`,
     });
@@ -19,6 +21,14 @@ export async function POST(req: Request) {
       error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { message: "Internal server error", error: errorMessage },
+
+    return NextResponse.json({
+      message: `Hello ${name}, your form has been submitted successfully!`,
+    });
+  } catch {
+    return NextResponse.json(
+      { message: "Internal server error" },
+
       { status: 500 }
     );
   }
