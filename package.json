@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.1.6",
+    "@neondatabase/serverless": "^1.0.0",
     "@types/node-fetch": "^2.6.12",
     "next": "15.1.6",
     "node-fetch": "^3.3.2",
