@@ -1,9 +1,19 @@
-
 import { FlagValues } from "flags/react";
 import { weatherWidgetFlag } from "./flags";
+import Link from "next/link";
+import { neon } from "@neondatabase/serverless";
 
 export default async function Home() {
   const weatherWidgetFlagValue = await weatherWidgetFlag();
+
+  async function create(formData: FormData) {
+    "use server";
+    // Connect to the Neon database
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    const comment = formData.get("comment");
+    // Insert the comment from the form into the Postgres database using tagged template literal
+    await sql`INSERT INTO comments (comment) VALUES (${comment})`;
+  }
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -36,7 +46,6 @@ export default async function Home() {
           </li>
           <li className="mb-2">Connect to Vercel to try Flags Explorer.</li>
         </ol>
-
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
             className={`rounded-full border border-solid transition-colors flex items-center justify-center gap-2 text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 ${
@@ -78,6 +87,21 @@ export default async function Home() {
             </a>
           )}
         </div>
+        {/* Neon comment form merged here */}
+        <div className="container" style={{ marginTop: "2rem" }}>
+          <h1>Welcome to Next.js + Playwright</h1>
+          <Link href="/form">Go to Form</Link>
+          <form action={create} style={{ marginTop: "2rem" }}>
+            <input
+              type="text"
+              placeholder="write a comment"
+              name="comment"
+              required
+              style={{ marginRight: "0.5rem" }}
+            />
+            <button type="submit">Submit</button>
+          </form>
+        </div>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
@@ -105,35 +129,6 @@ export default async function Home() {
           Go to nextjs.org →
         </a>
       </footer>
-
-import Link from "next/link";
-import { neon } from "@neondatabase/serverless";
-
-export default function Home() {
-  async function create(formData: FormData) {
-    "use server";
-    // Connect to the Neon database
-    const sql = neon(`${process.env.DATABASE_URL}`);
-    const comment = formData.get("comment");
-    // Insert the comment from the form into the Postgres database using tagged template literal
-    await sql`INSERT INTO comments (comment) VALUES (${comment})`;
-  }
-
-  return (
-    <div className="container">
-      <h1>Welcome to Next.js + Playwright</h1>
-      <Link href="/form">Go to Form</Link>
-      <form action={create} style={{ marginTop: "2rem" }}>
-        <input
-          type="text"
-          placeholder="write a comment"
-          name="comment"
-          required
-          style={{ marginRight: "0.5rem" }}
-        />
-        <button type="submit">Submit</button>
-      </form>
-
     </div>
   );
 }
