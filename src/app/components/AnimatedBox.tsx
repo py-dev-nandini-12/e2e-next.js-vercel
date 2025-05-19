@@ -2,22 +2,32 @@
 
 import { useState } from "react";
 import styles from "./AnimatedBox.module.css";
+import { AnimationStatus } from "../enum";
 
 export default function AnimatedBox() {
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [status, setStatus] = useState<AnimationStatus>(AnimationStatus.Idle);
 
   const toggleAnimation = () => {
-    setIsAnimating((prev) => !prev);
+    setStatus((prev) =>
+      prev === AnimationStatus.Running
+        ? AnimationStatus.Completed
+        : AnimationStatus.Running
+    );
   };
 
   return (
     <div>
       <button onClick={toggleAnimation} className={styles.toggleButton}>
-        {isAnimating ? "Stop Animation" : "Start Animation"}
+        {status === AnimationStatus.Running
+          ? "Stop Animation"
+          : "Start Animation"}
       </button>
       <div
-        className={`${styles.box} ${isAnimating ? styles.animate : ""}`}
+        className={`${styles.box} ${
+          status === AnimationStatus.Running ? styles.animate : ""
+        }`}
       ></div>
+      <p>Status: {status}</p>
     </div>
   );
 }

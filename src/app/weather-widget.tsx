@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { WeatherFetchStatus } from "./enum";
 
 export default function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -11,6 +12,9 @@ export default function WeatherWidget() {
     longitude: null,
   });
   const [error, setError] = useState("");
+  const [status, setStatus] = useState<WeatherFetchStatus>(
+    WeatherFetchStatus.Idle
+  );
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -23,10 +27,12 @@ export default function WeatherWidget() {
         },
         () => {
           setError("Unable to retrieve your location.");
+          setStatus(WeatherFetchStatus.Error);
         }
       );
     } else {
       setError("Geolocation is not supported by your browser.");
+      setStatus(WeatherFetchStatus.Error);
     }
   }, []);
 
@@ -45,6 +51,7 @@ export default function WeatherWidget() {
     latitude: number,
     longitude: number
   ): Promise<void> => {
+    setStatus(WeatherFetchStatus.Loading);
     try {
       const response = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
@@ -52,9 +59,11 @@ export default function WeatherWidget() {
       if (!response.ok) throw new Error("Failed to fetch weather data");
       const data: { current_weather: WeatherData } = await response.json();
       setWeather(data.current_weather);
+      setStatus(WeatherFetchStatus.Success);
     } catch (err) {
       console.error(err);
       setError("Unable to fetch weather data.");
+      setStatus(WeatherFetchStatus.Error);
     }
   };
 
@@ -64,13 +73,15 @@ export default function WeatherWidget() {
     >
       <h3>Current Weather</h3>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {weather ? (
+      {status === WeatherFetchStatus.Loading && <p>Loading...</p>}
+      {status === WeatherFetchStatus.Success && weather && (
         <div>
           <p>Temperature: {weather.temperature}°C</p>
           <p>Wind Speed: {weather.windspeed} km/h</p>
         </div>
-      ) : (
-        <p>Loading...</p>
+      )}
+      {status === WeatherFetchStatus.Error && !weather && (
+        <p>Failed to load weather.</p>
       )}
     </div>
   );
